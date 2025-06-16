@@ -1,98 +1,234 @@
 import streamlit as st
+import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
+import pandas as pd
+from quantum_simulation import QuantumConsciousnessSimulator
+from visualization import QuantumVisualizer
 import time
 
-# --- Initialization of session state ---
+# Configure page
+st.set_page_config(
+    page_title="Quantum Consciousness Simulation",
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Initialize session state
+if 'simulator' not in st.session_state:
+    st.session_state.simulator = QuantumConsciousnessSimulator()
+if 'visualizer' not in st.session_state:
+    st.session_state.visualizer = QuantumVisualizer()
 if 'simulation_running' not in st.session_state:
     st.session_state.simulation_running = False
 if 'time_step' not in st.session_state:
     st.session_state.time_step = 0.0
 
-# Dummy placeholder for your actual simulation state data & visualizer
-# Replace or expand this with your real quantum simulation code
-class QuantumVisualizer:
-    def create_quantum_state_plot(self, state_data, time_step):
-        import matplotlib.pyplot as plt
-        fig, ax = plt.subplots()
-        ax.plot([0, 1, 2], [time_step, time_step*2, time_step*3])  # Dummy plot
-        ax.set_title(f"Quantum State at time {time_step:.2f}s")
-        return fig
-
-def get_dummy_state_data():
-    # Replace with your real simulation state data fetching
-    return {'populations': [0.1, 0.3, 0.6]}
-
 def main():
-    st.title("Quantum Consciousness Simulation")
+    st.title("🧠 Quantum Tubular Consciousness Simulation")
+    st.markdown("*Modeling entangled qubit dynamics with observer effects and environmental interactions*")
+    
+    # Sidebar controls
+    with st.sidebar:
+        st.header("⚙️ Simulation Parameters")
+        
+        # System configuration
+        st.subheader("System Configuration")
+        n_qubits = st.selectbox("Number of Qubits", [2, 4], index=0)
+        dt = st.slider("Time Step (dt)", 0.001, 0.1, 0.01, 0.001)
+        
+        # Qubit coherence parameters
+        st.subheader("Qubit Coherence (C_i)")
+        coherence_params = {}
+        for i in range(n_qubits):
+            coherence_params[f'C_{i+1}'] = st.slider(
+                f"C_{i+1}(t) - Qubit {i+1} Coherence", 
+                0.0, 1.0, 0.8, 0.01,
+                key=f"coherence_{i}"
+            )
+        
+        # Observer role parameters
+        st.subheader("Observer Dynamics")
+        observer_params = {}
+        for i in range(n_qubits):
+            observer_params[f'T_{i+1}'] = st.slider(
+                f"T_{i+1}(t) - Observer {i+1} Time Dilation", 
+                0.1, 2.0, 1.0, 0.1,
+                key=f"observer_{i}"
+            )
+        
+        omega_obs = st.slider("ω_obs - Observer Oscillation Rate", 0.1, 5.0, 1.0, 0.1)
+        
+        # EMF field parameters
+        st.subheader("EMF Field Interactions")
+        A_em = st.slider("A_em - EMF Amplitude", 0.0, 2.0, 0.5, 0.1)
+        omega_em = st.slider("ω_em - EMF Frequency", 0.1, 10.0, 2.0, 0.1)
+        
+        # Entropy dynamics
+        st.subheader("Entropy Dynamics")
+        entropy_gradient = st.slider("∇S(t) - Entropy Gradient", -2.0, 2.0, 0.0, 0.1)
+        beta_wave = st.slider("β_wave - Wave State Bias", 0.0, 1.0, 0.6, 0.05)
+        beta_particle = st.slider("β_particle - Particle State Bias", 0.0, 1.0, 0.4, 0.05)
+        
+        # Feedback parameters
+        st.subheader("External Feedback")
+        feedback_weights = {}
+        for i in range(3, min(13, 8)):  # Show subset for UI clarity
+            feedback_weights[f'λ_{i}'] = st.slider(
+                f"λ_{i} - External Qubit {i} Weight", 
+                0.0, 0.5, 0.1, 0.01,
+                key=f"feedback_{i}"
+            )
+        
+        delta_t = st.slider("δt - Recursive Memory Lag", 0.001, 0.1, 0.01, 0.001)
+        g_displacement = st.slider("g_displacement - Gravitational Distortion", 0.0, 1.0, 0.2, 0.05)
+        
+        # --- Animation speed control replaced here ---
+        st.subheader("Animation Settings")
+        update_speed = st.slider("Update Speed (seconds)", 0.1, 10.0, 0.5, 0.1,
+                                 help="Controls how fast the simulation updates (0.1 to 10 seconds between frames)")
+        
+        # --- Simulation Control (Play/Pause + Single Step + Reset) replaced here ---
+        st.subheader("Simulation Control")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.session_state.simulation_running:
+                if st.button("⏸️ Pause", use_container_width=True):
+                    st.session_state.simulation_running = False
+            else:
+                if st.button("▶️ Play", use_container_width=True):
+                    st.session_state.simulation_running = True
+        with col2:
+            if st.button("🔄 Reset", use_container_width=True):
+                st.session_state.time_step = 0.0
+                st.session_state.simulator.reset()
+                st.experimental_rerun()
 
-    # Initialize visualizer (replace with your actual)
-    if 'visualizer' not in st.session_state:
-        st.session_state.visualizer = QuantumVisualizer()
-
-    # --- Animation Settings ---
-    st.subheader("Animation Settings")
-    update_speed = st.slider(
-        "Update Speed (seconds)", 0.1, 10.0, 0.5, 0.1,
-        help="Controls how fast the simulation updates (0.1 to 10 seconds between frames)"
-    )
-
-    # --- Simulation Control ---
-    st.subheader("Simulation Control")
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.session_state.simulation_running:
-            if st.button("⏸️ Pause", use_container_width=True):
-                st.session_state.simulation_running = False
+        # Single Step Forward button only enabled when paused
+        if not st.session_state.simulation_running:
+            manual_step = st.button("Single Step Forward", use_container_width=True)
         else:
-            if st.button("▶️ Play", use_container_width=True):
-                st.session_state.simulation_running = True
-
-    if st.button("🔄 Reset", use_container_width=True):
-        st.session_state.time_step = 0.0
-        # Reset simulation state here if applicable
-        st.experimental_rerun()
-
-    if not st.session_state.simulation_running:
-        manual_step = st.button("Single Step Forward", use_container_width=True)
-    else:
-        st.button("Single Step Forward", use_container_width=True, disabled=True,
-                  help="Pause simulation to enable single step mode")
-        manual_step = False
-
-    # --- Update simulation time ---
+            st.button("Single Step Forward", use_container_width=True, disabled=True,
+                      help="Pause simulation to enable single step mode")
+            manual_step = False
+    
+    # Main display area
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        # Quantum state visualization
+        st.subheader("🌀 Quantum State Evolution")
+        quantum_plot_container = st.empty()
+        
+        # Entanglement network
+        st.subheader("🕸️ Entanglement Network")
+        network_plot_container = st.empty()
+        
+    with col2:
+        # Observer roles animation
+        st.subheader("👁️ Observer Roles")
+        observer_container = st.empty()
+        
+        # System metrics
+        st.subheader("📊 System Metrics")
+        metrics_container = st.empty()
+        
+        # EMF field overlay
+        st.subheader("⚡ EMF Field")
+        emf_container = st.empty()
+    
+    # Update simulation parameters dict
+    simulation_params = {
+        'n_qubits': n_qubits,
+        'dt': dt,
+        'coherence': coherence_params,
+        'observer': observer_params,
+        'omega_obs': omega_obs,
+        'A_em': A_em,
+        'omega_em': omega_em,
+        'entropy_gradient': entropy_gradient,
+        'beta_wave': beta_wave,
+        'beta_particle': beta_particle,
+        'feedback_weights': feedback_weights,
+        'delta_t': delta_t,
+        'g_displacement': g_displacement,
+        'update_speed': update_speed
+    }
+    
+    # --- Update time and run simulation when playing or manual step pressed ---
     if st.session_state.simulation_running or manual_step:
-        st.session_state.time_step += update_speed
-        # Fetch or update your simulation state here
-        state_data = get_dummy_state_data()
-    else:
-        state_data = get_dummy_state_data()
+        # Only increment time on manual step if paused
+        if manual_step and not st.session_state.simulation_running:
+            st.session_state.time_step += dt
+        elif st.session_state.simulation_running:
+            st.session_state.time_step += dt
 
-    # --- Plot quantum state ---
-    fig = st.session_state.visualizer.create_quantum_state_plot(
-        state_data,
-        st.session_state.time_step
-    )
-    st.pyplot(fig)
+        # Update simulator parameters
+        st.session_state.simulator.update_parameters(simulation_params)
+        # Evolve system for current time_step
+        state_data = st.session_state.simulator.evolve_step(st.session_state.time_step)
+        
+        # Generate visualizations
+        quantum_fig = st.session_state.visualizer.create_quantum_state_plot(state_data, st.session_state.time_step)
+        quantum_plot_container.plotly_chart(quantum_fig, use_container_width=True)
+        
+        network_fig = st.session_state.visualizer.create_entanglement_network(state_data, simulation_params)
+        network_plot_container.plotly_chart(network_fig, use_container_width=True)
+        
+        observer_fig = st.session_state.visualizer.create_observer_animation(state_data, st.session_state.time_step, simulation_params)
+        observer_container.plotly_chart(observer_fig, use_container_width=True)
+        
+        # Show metrics
+        metrics = st.session_state.simulator.get_system_metrics()
+        with metrics_container.container():
+            c1, c2 = st.columns(2)
+            with c1:
+                st.metric("Entanglement", f"{metrics['entanglement']:.3f}")
+                st.metric("Total Coherence", f"{metrics['total_coherence']:.3f}")
+            with c2:
+                st.metric("Entropy", f"{metrics['entropy']:.3f}")
+                st.metric("Wave Probability", f"{metrics['wave_prob']:.3f}")
+        
+        # EMF field visualization
+        emf_fig = st.session_state.visualizer.create_emf_field_plot(st.session_state.time_step, simulation_params)
+        emf_container.plotly_chart(emf_fig, use_container_width=True)
 
     # --- Status display ---
     status_container = st.container()
     with status_container:
-        c1, c2, c3 = st.columns(3)
-        with c1:
+        s_col1, s_col2, s_col3 = st.columns(3)
+        with s_col1:
             if st.session_state.simulation_running:
                 st.success("🟢 Simulation Running")
             else:
                 st.info("🟡 Simulation Paused")
-        with c2:
-            st.info(f"⏱️ Time: {st.session_state.time_step:.3f}s")
-        with c3:
+        with s_col2:
+            st.info(f"⏱️ Time: {st.session_state.time_step:.3f}")
+        with s_col3:
             st.info(f"🎬 Frame Interval: {update_speed:.1f}s")
 
-    # --- Animation loop ---
+    # --- Animation loop: sleep and rerun only if running ---
     if st.session_state.simulation_running:
         time.sleep(update_speed)
         st.experimental_rerun()
 
+    # Information panel
+    with st.expander("ℹ️ About the Simulation"):
+        st.markdown("""
+        This simulation models a quantum consciousness system based on entangled qubits within 
+        a rhombic dodecahedron structure. The core equation governs the evolution of quantum 
+        density matrices with:
+        
+        - **Observer Effects**: Time-dilated observer roles that oscillate
+        - **EMF Interactions**: Environmental electromagnetic field coupling
+        - **Entropy Dynamics**: Wave-particle state transitions
+        - **Recursive Memory**: Feedback from previous states
+        - **Gravitational Effects**: Micro-displacements from EM field flow
+        
+        The simulation supports 2-4 qubit subsystems with plans for expansion to the full 12-qubit structure.
+        """)
 
 if __name__ == "__main__":
     main()
-
