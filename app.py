@@ -161,93 +161,100 @@ def main():
    
     # Handle manual step forward (only when paused)
     if manual_step and not st.session_state.simulation_running:
-        # Update simulator with new parameters
-        st.session_state.simulator.update_parameters(simulation_params)
-       
-        # Evolve system one step
-        state_data = st.session_state.simulator.evolve_step(st.session_state.time_step)
-       
-        # Generate visualizations for manual step
-        quantum_fig = st.session_state.visualizer.create_quantum_state_plot(
-            state_data, st.session_state.time_step
-        )
-        quantum_plot_container.plotly_chart(quantum_fig, use_container_width=True)
-       
-        network_fig = st.session_state.visualizer.create_entanglement_network(
-            state_data, simulation_params
-        )
-        network_plot_container.plotly_chart(network_fig, use_container_width=True)
-       
-        observer_fig = st.session_state.visualizer.create_observer_animation(
-            state_data, st.session_state.time_step, simulation_params
-        )
-        observer_container.plotly_chart(observer_fig, use_container_width=True)
-       
-        # Display metrics
-        metrics = st.session_state.simulator.get_system_metrics()
-        with metrics_container.container():
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("Entanglement", f"{metrics['entanglement']:.3f}")
-                st.metric("Total Coherence", f"{metrics['total_coherence']:.3f}")
-            with col2:
-                st.metric("Entropy", f"{metrics['entropy']:.3f}")
-                st.metric("Wave Probability", f"{metrics['wave_prob']:.3f}")
-       
-        # EMF field visualization
-        emf_fig = st.session_state.visualizer.create_emf_field_plot(
-            st.session_state.time_step, simulation_params
-        )
-        emf_container.plotly_chart(emf_fig, use_container_width=True)
-       
-        # Increment time for next step
-        st.session_state.time_step += dt
+        try:
+            # Update simulator with new parameters
+            st.session_state.simulator.update_parameters(simulation_params)
+           
+            # Evolve system one step
+            state_data = st.session_state.simulator.evolve_step(st.session_state.time_step)
+           
+            # Generate visualizations for manual step
+            quantum_fig = st.session_state.visualizer.create_quantum_state_plot(
+                state_data, st.session_state.time_step
+            )
+            quantum_plot_container.plotly_chart(quantum_fig, use_container_width=True)
+           
+            network_fig = st.session_state.visualizer.create_entanglement_network(
+                state_data, simulation_params
+            )
+            network_plot_container.plotly_chart(network_fig, use_container_width=True)
+           
+            observer_fig = st.session_state.visualizer.create_observer_animation(
+                state_data, st.session_state.time_step, simulation_params
+            )
+            observer_container.plotly_chart(observer_fig, use_container_width=True)
+           
+            # Display metrics
+            metrics = st.session_state.simulator.get_system_metrics()
+            with metrics_container.container():
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Entanglement", f"{metrics['entanglement']:.3f}")
+                    st.metric("Total Coherence", f"{metrics['total_coherence']:.3f}")
+                with col2:
+                    st.metric("Entropy", f"{metrics['entropy']:.3f}")
+                    st.metric("Wave Probability", f"{metrics['wave_prob']:.3f}")
+           
+            # EMF field visualization
+            emf_fig = st.session_state.visualizer.create_emf_field_plot(
+                st.session_state.time_step, simulation_params
+            )
+            emf_container.plotly_chart(emf_fig, use_container_width=True)
+           
+            # Increment time for next step
+            st.session_state.time_step += dt
+        except Exception as e:
+            st.error(f"Simulation error: {str(e)}")
    
     # Run simulation step continuously when playing
     elif st.session_state.simulation_running:
-        # Update simulator with new parameters
-        st.session_state.simulator.update_parameters(simulation_params)
-       
-        # Evolve system
-        state_data = st.session_state.simulator.evolve_step(st.session_state.time_step)
-       
-        # Generate visualizations
-        quantum_fig = st.session_state.visualizer.create_quantum_state_plot(
-            state_data, st.session_state.time_step
-        )
-        quantum_plot_container.plotly_chart(quantum_fig, use_container_width=True)
-       
-        network_fig = st.session_state.visualizer.create_entanglement_network(
-            state_data, simulation_params
-        )
-        network_plot_container.plotly_chart(network_fig, use_container_width=True)
-       
-        observer_fig = st.session_state.visualizer.create_observer_animation(
-            state_data, st.session_state.time_step, simulation_params
-        )
-        observer_container.plotly_chart(observer_fig, use_container_width=True)
-       
-        # Display metrics
-        metrics = st.session_state.simulator.get_system_metrics()
-        with metrics_container.container():
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("Entanglement", f"{metrics['entanglement']:.3f}")
-                st.metric("Total Coherence", f"{metrics['total_coherence']:.3f}")
-            with col2:
-                st.metric("Entropy", f"{metrics['entropy']:.3f}")
-                st.metric("Wave Probability", f"{metrics['wave_prob']:.3f}")
-       
-        # EMF field visualization
-        emf_fig = st.session_state.visualizer.create_emf_field_plot(
-            st.session_state.time_step, simulation_params
-        )
-        emf_container.plotly_chart(emf_fig, use_container_width=True)
-       
-        # Increment time and refresh with adjustable animation speed (now up to 10 seconds)
-        st.session_state.time_step += dt
-        time.sleep(update_speed)  # Use adjustable animation speed up to 10 seconds
-        st.rerun()
+        try:
+            # Update simulator with new parameters
+            st.session_state.simulator.update_parameters(simulation_params)
+           
+            # Evolve system
+            state_data = st.session_state.simulator.evolve_step(st.session_state.time_step)
+           
+            # Generate visualizations
+            quantum_fig = st.session_state.visualizer.create_quantum_state_plot(
+                state_data, st.session_state.time_step
+            )
+            quantum_plot_container.plotly_chart(quantum_fig, use_container_width=True)
+           
+            network_fig = st.session_state.visualizer.create_entanglement_network(
+                state_data, simulation_params
+            )
+            network_plot_container.plotly_chart(network_fig, use_container_width=True)
+           
+            observer_fig = st.session_state.visualizer.create_observer_animation(
+                state_data, st.session_state.time_step, simulation_params
+            )
+            observer_container.plotly_chart(observer_fig, use_container_width=True)
+           
+            # Display metrics
+            metrics = st.session_state.simulator.get_system_metrics()
+            with metrics_container.container():
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Entanglement", f"{metrics['entanglement']:.3f}")
+                    st.metric("Total Coherence", f"{metrics['total_coherence']:.3f}")
+                with col2:
+                    st.metric("Entropy", f"{metrics['entropy']:.3f}")
+                    st.metric("Wave Probability", f"{metrics['wave_prob']:.3f}")
+           
+            # EMF field visualization
+            emf_fig = st.session_state.visualizer.create_emf_field_plot(
+                st.session_state.time_step, simulation_params
+            )
+            emf_container.plotly_chart(emf_fig, use_container_width=True)
+           
+            # Increment time and refresh with adjustable animation speed (now up to 10 seconds)
+            st.session_state.time_step += dt
+            time.sleep(update_speed)  # Use adjustable animation speed up to 10 seconds
+            st.rerun()
+        except Exception as e:
+            st.error(f"Simulation error: {str(e)}")
+            st.session_state.simulation_running = False
     
     # Show current simulation status
     status_container = st.container()
