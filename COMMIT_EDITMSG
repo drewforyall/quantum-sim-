@@ -1,0 +1,7 @@
+Provide users with control over the animation speed of the simulation
+
+Adds a slider to control animation speed and a button for single-step evolution, updating simulation parameters and visualizations in `app.py`.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 59338329-58ab-410c-ba13-dd4bc5eaed40
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/a9c3962a-6215-4701-ab4f-f1d52f2e1b33/0ca38946-263d-4a15-adce-88fc6d6c1658.jpg
