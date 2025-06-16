@@ -26,6 +26,32 @@ if 'simulation_running' not in st.session_state:
 if 'time_step' not in st.session_state:
     st.session_state.time_step = 0.0
 
+def ensure_valid_state_data(state_data, n_qubits):
+    """Ensure state_data has all required keys with proper data types"""
+    # Fix pauli_expectations if it's not a dictionary
+    if 'pauli_expectations' not in state_data or not isinstance(state_data.get('pauli_expectations'), dict):
+        state_data['pauli_expectations'] = {f'qubit_{i}_{p}': 0.0 for i in range(n_qubits) for p in ['X', 'Y', 'Z']}
+    
+    # Set other required keys
+    if 'populations' not in state_data:
+        state_data['populations'] = [1.0] + [0.0] * (2**n_qubits - 1)
+    if 'coherences' not in state_data:
+        state_data['coherences'] = np.zeros((2**n_qubits, 2**n_qubits))
+    if 'amplitudes' not in state_data:
+        state_data['amplitudes'] = np.array([1.0] + [0.0] * (2**n_qubits - 1))
+    if 'phases' not in state_data:
+        state_data['phases'] = np.zeros(2**n_qubits)
+    if 'entanglement' not in state_data:
+        state_data['entanglement'] = 0.0
+    if 'entropy' not in state_data:
+        state_data['entropy'] = 0.0
+    if 'density_matrix' not in state_data:
+        state_data['density_matrix'] = np.eye(2**n_qubits)
+    if 'eigenvalues' not in state_data:
+        state_data['eigenvalues'] = np.array([1.0])
+    
+    return state_data
+
 def main():
     st.title("🧠 Quantum Tubular Consciousness Simulation")
     st.markdown("*Modeling entangled qubit dynamics with observer effects and environmental interactions*")
@@ -168,21 +194,8 @@ def main():
             # Evolve system one step
             state_data = st.session_state.simulator.evolve_step(st.session_state.time_step)
             
-            # Ensure all required keys exist for visualization
-            n_qubits = state_data.get('n_qubits', 2)
-            required_keys = {
-                'populations': [1.0] + [0.0] * (2**n_qubits - 1),
-                'coherences': np.zeros((2**n_qubits, 2**n_qubits)),
-                'amplitudes': np.array([1.0] + [0.0] * (2**n_qubits - 1)),
-                'phases': np.zeros(2**n_qubits),
-                'pauli_expectations': {f'qubit_{i}_{p}': 0.0 for i in range(n_qubits) for p in ['X', 'Y', 'Z']},
-                'entanglement': 0.0,
-                'entropy': 0.0
-            }
-            
-            for key, default_value in required_keys.items():
-                if key not in state_data:
-                    state_data[key] = default_value
+            # Ensure data validity
+            state_data = ensure_valid_state_data(state_data, n_qubits)
            
             # Generate visualizations for manual step
             quantum_fig = st.session_state.visualizer.create_quantum_state_plot(
@@ -231,21 +244,8 @@ def main():
             # Evolve system
             state_data = st.session_state.simulator.evolve_step(st.session_state.time_step)
             
-            # Ensure all required keys exist for visualization
-            n_qubits = state_data.get('n_qubits', 2)
-            required_keys = {
-                'populations': [1.0] + [0.0] * (2**n_qubits - 1),
-                'coherences': np.zeros((2**n_qubits, 2**n_qubits)),
-                'amplitudes': np.array([1.0] + [0.0] * (2**n_qubits - 1)),
-                'phases': np.zeros(2**n_qubits),
-                'pauli_expectations': {f'qubit_{i}_{p}': 0.0 for i in range(n_qubits) for p in ['X', 'Y', 'Z']},
-                'entanglement': 0.0,
-                'entropy': 0.0
-            }
-            
-            for key, default_value in required_keys.items():
-                if key not in state_data:
-                    state_data[key] = default_value
+            # Ensure data validity
+            state_data = ensure_valid_state_data(state_data, n_qubits)
            
             # Generate visualizations
             quantum_fig = st.session_state.visualizer.create_quantum_state_plot(
