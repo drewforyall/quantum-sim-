@@ -1,8 +1,7 @@
-streamlit>=1.30
+streamlit==1.35.0
 numpy
-pandas
-matplotlib
-networkx
-scipy
-qutip
 plotly
+pandas
+scipy
+networkx
+qutip
